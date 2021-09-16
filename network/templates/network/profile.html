@@ -1,0 +1,130 @@
+{% extends "network/layout.html" %}
+{% load static %}
+
+{% block body %}
+<div class="container">
+    <!-- Content here -->
+    <div class="container follow" style="margin-left: auto;">
+        <br>
+        <div class="card" style="width: 18rem;">
+            <ul class="list-group list-group-flush">
+                {% if user == profile_user %}
+                    <li class="list-group-item" style="display: none;">
+                        {% if already_following %}
+                            <a href="#" class="btn btn-outline-primary followButton" method="POST"
+                                data-id="{{ profile_user.id }}">Unfollow</a>
+                        {% else %}
+                            <a href="#" class="btn btn-outline-primary followButton" method="POST"
+                                data-id="{{ profile_user.id }}">Follow</a>
+                        {% endif %}
+                    </li>
+                {% else %}
+                    <li class="list-group-item">
+                        {% if already_following %}
+                            <a href="#" class="btn btn-outline-primary followButton" method="POST"
+                                data-id="{{ profile_user.id }}">Unfollow</a>
+                        {% else %}
+                            <a href="#" class="btn btn-outline-primary followButton" method="POST"
+                                data-id="{{ profile_user.id }}">Follow</a>
+                        {% endif %}
+                    </li>
+                {% endif %}
+              <li class="list-group-item followers">{{ followers }} Followers</li>
+              <li class="list-group-item following">{{ followings }} Following</li>
+            </ul>
+        </div>
+
+
+    </div>
+    <div class="container posts">
+        {% if page %}
+        <nav aria-label="Page navigation example">
+            <ul class="pagination justify-content-center">
+                {% if page.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="{% url 'profile' profile_user.id  %}?page={{ page.previous_page_number }}">Previous</a>
+                </li>
+                {% else %}
+                <li class="page-item disabled">
+                    <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
+                </li>
+                {% endif %}
+                {% if page.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="{% url 'profile' profile_user.id %}?page={{ page.next_page_number }}">Next</a>
+                </li>
+                {% else %}
+                <li class="page-item disabled">
+                    <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Next</a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+
+        {% for post in page.object_list %}
+        <div class="card" style="width: 100%; margin-bottom: 5px;">
+            <div class="card-body">
+                <a href="{% url 'profile' post.author.id %}">
+                    <h5 class="card-title author">{{ post.author }}</h5>
+                </a>
+                {% if user == post.author %}
+                <a href="#" class="card-link edit" data-id="{{ post.id }}">Edit</a>
+                {% endif %}
+                <p class="card-text content" data-id="{{ post.id }}">{{ post.content }}</p>
+                <h6 class="card-subtitle mb-2 text-muted date">{{ post.date }}</h6>
+                <i class="far fa-thumbs-up" style="color: #007bff;"></i>
+                <i id="likeCounter" data-id="{{ post.id }}"> 
+                    {{ post.like.count }}
+                </i>
+                </br>
+                <div class="btn-group">
+                    {% if user.is_authenticated %}
+                    {% if user in post.like.all %}
+                    <a href="#" class="btn btn-outline-primary like" id="likeButton" data-id="{{ post.id }}">Unlike</a>
+                    {% else %}
+                    <a href="#" class="btn btn-outline-primary like" id="likeButton" data-id="{{ post.id }}">Like</a>
+                    {% endif %}
+                    {% else %}
+                    <a href="{% url 'login' %}" class="btn btn-outline-primary like" id="likeButton"
+                        data-id="{{ post.id }}">Like</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        <nav aria-label="Page navigation example">
+            <ul class="pagination justify-content-center">
+                {% if page.has_previous %}
+                <li class="page-item">
+                    <a class="page-link"
+                        href="{% url 'profile' profile_user.id %}?page={{ page.previous_page_number }}">Previous</a>
+                </li>
+                {% else %}
+                <li class="page-item disabled">
+                    <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
+                </li>
+                {% endif %}
+                {% if page.has_next %}
+                <li class="page-item">
+                    <a class="page-link"
+                        href="{% url 'profile' profile_user.id %}?page={{ page.next_page_number }}">Next</a>
+                </li>
+                {% else %}
+                <li class="page-item disabled">
+                    <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Next</a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% else %}
+        <div class="card">
+            <div class="card-body">
+                No posts yet!
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+<script src="{% static '/network/index.js' %}"></script>
+<script src="{% static '/network/follow.js' %}"></script>
+{% endblock %}
